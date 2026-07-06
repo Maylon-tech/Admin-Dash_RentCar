@@ -1,37 +1,44 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { FaRegMoon } from "react-icons/fa"
-import { FaSun } from "react-icons/fa"
-import { FaBars } from "react-icons/fa"
-import { IoPersonSharp } from "react-icons/io5"
+import { FaRegMoon, FaRegSun } from 'react-icons/fa'
+import { IoPersonSharp } from 'react-icons/io5'
 
 const Navbar = () => {
+  const [dark, setDark] = useState(false)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', dark)
+  }, [dark])
+
   return (
-    <div className="bg-[#090c11] px-6 py-4 w-full flex items-center justify-between border-b border-slate-500"> 
-      
-      <div className="text-xl text-yellow-500">
-        <Link to="/">
-          <img src="../../public/Logo-01.jpg" className='w-15 h-15 cover rounded-full border-2 border-amber-700'/>
-        </Link>
+    <nav className="flex w-full items-center justify-between border-b border-[var(--color-darkblue)] bg-[var(--color-white)] px-6 py-4 shadow-sm dark:bg-[var(--color-darkblue-soft)]">
+      <Link to="/" aria-label="Go to dashboard" className="flex items-center">
+        <img
+          src="/Logo-01.jpg"
+          alt="Rent Cars logo"
+          className="h-14 w-14 rounded-full border-2 border-[var(--color-darkblue)] object-cover"
+        />
+      </Link>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+          onClick={() => setDark((currentTheme) => !currentTheme)}
+          className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--color-darkblue)] text-[var(--color-white)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-darkblue)] focus:ring-offset-2 dark:bg-[var(--color-white)] dark:text-[var(--color-darkblue)]"
+        >
+          {dark ? <FaRegSun size={18} /> : <FaRegMoon size={18} />}
+        </button>
+
+        <button
+          type="button"
+          aria-label="Open user profile"
+          className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--color-darkblue)] text-[var(--color-white)] transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-[var(--color-darkblue)] focus:ring-offset-2 dark:bg-[var(--color-white)] dark:text-[var(--color-darkblue)]"
+        >
+          <IoPersonSharp size={20} />
+        </button>
       </div>
-
-      <div className="flex gap-4 px-6 py-2">
-
-        <div className="text-xl">
-          <button className='p-4 bg-[#121a27] text-white cursor-pointer'> 
-            <FaRegMoon size="18" />
-          </button>
-        </div>
-
-        <div className="text-xl text-yellow-500">
-          <button className="p-4 bg-[#121a27] text-white cursor-pointer">
-            <IoPersonSharp size="20" className='' />
-            {/* <FaBars size="18" /> */}
-          </button>
-        </div>
-
-      </div>
-
-    </div>
+    </nav>
   )
 }
 

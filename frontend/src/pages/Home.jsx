@@ -1,102 +1,38 @@
+import { useAppData } from '../context/useAppData'
+import DataTable from '../components/ui/DataTable'
 
+const carColumns = [
+  { key: 'car', label: 'Carro' },
+  { key: 'model', label: 'Modelo' },
+  { key: 'status', label: 'Status' },
+]
 
+const clientColumns = [
+  { key: 'name', label: 'Cliente' },
+  { key: 'city', label: 'Cidade' },
+  { key: 'mobile', label: 'Celular' },
+]
 
 const Home = () => {
-  return (
-    <div
-      className="flex flex-col gap-12 w-full h-full bg-[#01131f] px-4 items-center"
-    >
-      <div className="flex items-center justify-between border border-orange-400 mt-4 p-2 w-full">
-        <h1 className="text-2xl text-orange-400">Painel Geral do Sistema</h1>
+  const { cars, clients } = useAppData()
 
-        <div className="p-2 border border-slate-200/80 rounded-xl">
-          <input
-            type="text"
-            placeholder="Procurar...."
-            className="text-white"
-          />
-        </div>
+  return (
+    <div className="flex h-full w-full flex-col gap-6 rounded-lg bg-[var(--color-darkblue)] p-6">
+      <div className="flex w-full items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-[var(--color-gold)]">Painel Geral</h1>
       </div>
 
-      <table className="border-separate border-spacing-2 bg-slate-700/50 rounded-sm p-2 w-full text-white"> 
+      <div className="grid w-full gap-6 xl:grid-cols-2">
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-bold text-[var(--color-gold)]">Resumo de Carros</h2>
+          <DataTable columns={carColumns} data={cars.slice(0, 3)} />
+        </section>
 
-        <thead className="">
-          <tr className="">
-            <th className="rounded-xs text-orange-400">Carros Disponivel</th>
-            <th className="rounded-xs text-orange-400">Carros Alugados</th>
-            <th className="rounded-xs text-orange-400">Servicos em Andamento</th>
-           
-            
-          </tr>
-        </thead>
-
-        <tbody className="bg-slate-700 p-2 w-full">
-          <tr className="h-8 text-center">
-            <td>Nissan Note</td>
-            <td>2017</td>
-            <td>Azul</td>
-            
-             {/*<td className="flex gap-2 items-center justify-center">
-              <button 
-                className="cursor-pointer"
-                onClick={() => {}}
-              >
-                <Trash size="18" />
-              </button>
-              <button
-                className="p-2 cursor-pointer"
-                onClick={() => {}}
-              >
-                <SquarePen size="18" />
-              </button>
-            </td>   */}
-          </tr>
-
-          <tr className="h-8 text-center">
-            <td>Toyota Voxy</td>
-            <td>2023</td>
-            <td>Preto</td>
-            
-            {/*  <td className="flex gap-2 items-center justify-center">
-             <button 
-                className="cursor-pointer"
-                onClick={() => {}}
-              >
-                <Trash size="18" />
-              </button>
-              <button
-                className="p-2 cursor-pointer"
-                onClick={() => {}}
-              >
-                <SquarePen size="18" />
-              </button> 
-            </td>  */}
-          </tr>
-
-          <tr className="h-8 text-center">
-            <td>Daihatsu Movie</td>
-            <td>2020</td>
-            <td>Chumbo</td>
-            
-           {/* <td className="flex gap-2 items-center justify-center">
-               <button 
-                className="cursor-pointer"
-                onClick={() => {}}
-              >
-                <Trash size="18" />
-              </button>
-              <button
-                className="p-2 cursor-pointer"
-                onClick={() => {}}
-              >
-                <SquarePen size="18" />
-              </button> 
-            </td>  */}
-          </tr>
-
-        </tbody>
-
-      </table>
+        <section className="flex flex-col gap-4">
+          <h2 className="text-lg font-bold text-[var(--color-gold)]">Resumo de Clientes</h2>
+          <DataTable columns={clientColumns} data={clients.slice(0, 3)} />
+        </section>
+      </div>
     </div>
   )
 }
