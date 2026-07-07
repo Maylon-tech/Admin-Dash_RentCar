@@ -14,33 +14,38 @@ import Services from './pages/Services'
 import Settings from './pages/Settings'
 import DarkMode from './pages/DarkMode'
 import { AppDataProvider } from './context/AppDataContext'
+import { AuthProvider, ProtectedRoute } from './context/AuthContext'
+import { SidebarProvider } from './context/SidebarContext'
+import { ThemeProvider } from './context/ThemeContext'
 
 function App() {
-
   return (
-    <AppDataProvider>
-     
-      <Routes>
-        {/* Auth Routes */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={ <Register /> } />
-        </Route>
+    <ThemeProvider>
+      <AuthProvider>
+        <SidebarProvider>
+          <AppDataProvider>
+            <Routes>
+              <Route element={<AuthLayout />}>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+              </Route>
 
-        {/* Rotas Privadas  */}
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/rentCar" element={<RentCar />} />
-          <Route path="/carsList" element={<CarsList />} />
-          <Route path="/clientList" element={<ClientList />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/dark" element={<DarkMode />} />
-        </Route>
-        
-      </Routes>
-      {/* <Footer /> */}
-    </AppDataProvider>
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/rentCar" element={<RentCar />} />
+                  <Route path="/carsList" element={<CarsList />} />
+                  <Route path="/clientList" element={<ClientList />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/dark" element={<DarkMode />} />
+                </Route>
+              </Route>
+            </Routes>
+          </AppDataProvider>
+        </SidebarProvider>
+      </AuthProvider>
+    </ThemeProvider>
   )
 }
 
