@@ -51,7 +51,7 @@ const Settings = () => {
           >
             <span
               className="absolute top-1 h-5 w-5 rounded-full bg-white transition-transform duration-300"
-              style={{ transform: isDark ? 'translateX(28px)' : 'translateX(2px)' }}
+              style={{ transform: isDark ? 'translateX(0px)' : 'translateX(-22px)' }}
             />
           </button>
         </div>

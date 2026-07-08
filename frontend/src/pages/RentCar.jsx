@@ -3,11 +3,12 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { MdPaid } from 'react-icons/md'
 import { RiMoneyDollarCircleLine } from 'react-icons/ri'
 import Button from '../components/ui/Button'
+import ConfirmModal from '../components/ui/ConfirmModal'
 import DataTable from '../components/ui/DataTable'
 import Modal from '../components/ui/Modal'
 import { useAppData } from '../context/useAppData'
 
-const emptyForm = {
+const createEmptyForm = () => ({
   carId: '',
   clientName: '',
   city: '',
@@ -16,14 +17,20 @@ const emptyForm = {
   rentDate: '',
   deliveryDate: '',
   price: '',
-}
+})
 
 const RentCar = () => {
-  const { cars, clients, rentCars, addRentCar, toggleRentPayment } = useAppData()
+  const { cars, clients, rentCars, addRentCar, updateRentCar, deleteRentCar, toggleRentPayment } = useAppData()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [formData, setFormData] = useState(emptyForm)
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const [editingRent, setEditingRent] = useState(null)
+  const [deletingRent, setDeletingRent] = useState(null)
+  const [formData, setFormData] = useState(createEmptyForm)
 
-  const availableCars = cars.filter((car) => car.status !== 'Alugado')
+  const availableCars = [
+    ...cars.filter((car) => car.status !== 'Alugado'),
+    ...(editingRent ? cars.filter((car) => String(car.id) === String(editingRent.carId)) : []),
+  ]
 
   const fields = [
     {
@@ -67,15 +74,55 @@ const RentCar = () => {
     }))
   }
 
-  const handleConfirm = () => {
-    addRentCar(formData)
-    setFormData(emptyForm)
+  const handleClose = () => {
+    setFormData(createEmptyForm())
+    setEditingRent(null)
     setIsModalOpen(false)
   }
 
-  const handleClose = () => {
-    setFormData(emptyForm)
-    setIsModalOpen(false)
+  const openCreateModal = () => {
+    setEditingRent(null)
+    setFormData(createEmptyForm())
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (rentCar) => {
+    setEditingRent(rentCar)
+    setFormData({
+      carId: rentCar.carId ?? '',
+      clientName: rentCar.client ?? '',
+      city: rentCar.city ?? '',
+      phone: rentCar.phone ?? '',
+      mobile: rentCar.mobile ?? '',
+      rentDate: rentCar.rentDate ?? '',
+      deliveryDate: rentCar.deliveryDate ?? '',
+      price: rentCar.price ?? '',
+    })
+    setIsModalOpen(true)
+  }
+
+  const openDeleteModal = (rentCar) => {
+    setDeletingRent(rentCar)
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirm = () => {
+    if (editingRent) {
+      updateRentCar(editingRent.id, formData)
+    } else {
+      addRentCar(formData)
+    }
+
+    handleClose()
+  }
+
+  const handleDelete = () => {
+    if (deletingRent) {
+      deleteRentCar(deletingRent.id)
+    }
+
+    setDeletingRent(null)
+    setIsConfirmOpen(false)
   }
 
   const formatYen = (value) => {
@@ -135,27 +182,73 @@ const RentCar = () => {
         </button>
       ),
     },
+    {
+      key: 'actions',
+      label: 'Ações',
+      render: (rentCar) => (
+        <div className="flex justify-start gap-2">
+          <button
+            type="button"
+            aria-label={`Editar ${rentCar.client}`}
+            onClick={() => openEditModal(rentCar)}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--color-gold)] transition hover:bg-white/10"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label={`Excluir ${rentCar.client}`}
+            onClick={() => openDeleteModal(rentCar)}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-rose-400 transition hover:bg-white/10"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[1.8]">
+              <path d="M3 6h18" />
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M10 11v6" />
+              <path d="M14 11v6" />
+            </svg>
+          </button>
+        </div>
+      ),
+    },
   ]
 
   return (
     <div className="flex h-full w-full flex-col gap-6 rounded-lg bg-[var(--color-darkblue)] p-6">
       <div className="flex w-full items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-[var(--color-gold)]">Controle de Aluguel</h1>
-        <Button onClick={() => setIsModalOpen(true)}>Adicionar aluguel</Button>
+        <Button onClick={openCreateModal}>Adicionar aluguel</Button>
       </div>
 
       <DataTable columns={columns} data={rentCars} />
 
       {isModalOpen && (
         <Modal
-          title="Novo aluguel"
+          title={editingRent ? 'Editar aluguel' : 'Novo aluguel'}
           fields={fields}
           formData={formData}
-          confirmTitle="Adicionar aluguel"
+          confirmTitle={editingRent ? 'Salvar alterações' : 'Adicionar aluguel'}
           cancelTitle="Cancelar"
           onChange={handleChange}
           onClose={handleClose}
           onConfirm={handleConfirm}
+        />
+      )}
+
+      {isConfirmOpen && (
+        <ConfirmModal
+          title="Remover aluguel"
+          message={`Deseja remover este aluguel da lista?`}
+          confirmTitle="Remover"
+          onConfirm={handleDelete}
+          onClose={() => {
+            setDeletingRent(null)
+            setIsConfirmOpen(false)
+          }}
         />
       )}
     </div>

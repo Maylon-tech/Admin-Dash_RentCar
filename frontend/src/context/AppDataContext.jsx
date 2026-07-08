@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { AppDataContext } from './appDataStore'
 
 const initialCars = [
@@ -79,11 +79,34 @@ const initialRentCars = [
   },
 ]
 
+const getStoredValue = (key, fallback) => {
+  if (typeof window === 'undefined') {
+    return fallback
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(key)
+    return storedValue ? JSON.parse(storedValue) : fallback
+  } catch {
+    return fallback
+  }
+}
+
+const useStoredState = (key, initialValue) => {
+  const [state, setState] = useState(() => getStoredValue(key, initialValue))
+
+  useEffect(() => {
+    window.localStorage.setItem(key, JSON.stringify(state))
+  }, [key, state])
+
+  return [state, setState]
+}
+
 export const AppDataProvider = ({ children }) => {
-  const [cars, setCars] = useState(initialCars)
-  const [clients, setClients] = useState(initialClients)
-  const [services, setServices] = useState(initialServices)
-  const [rentCars, setRentCars] = useState(initialRentCars)
+  const [cars, setCars] = useStoredState('rentcar-cars', initialCars)
+  const [clients, setClients] = useStoredState('rentcar-clients', initialClients)
+  const [services, setServices] = useStoredState('rentcar-services', initialServices)
+  const [rentCars, setRentCars] = useStoredState('rentcar-rentals', initialRentCars)
 
   const addCar = (car) => {
     setCars((currentCars) => [...currentCars, { id: Date.now(), ...car }])
@@ -93,8 +116,39 @@ export const AppDataProvider = ({ children }) => {
     setClients((currentClients) => [...currentClients, { id: Date.now(), ...client }])
   }
 
+  const updateCar = (carId, updatedCar) => {
+    setCars((currentCars) =>
+      currentCars.map((car) => (car.id === carId ? { ...car, ...updatedCar } : car)),
+    )
+  }
+
+  const deleteCar = (carId) => {
+    setCars((currentCars) => currentCars.filter((car) => car.id !== carId))
+    setRentCars((currentRentCars) => currentRentCars.filter((rentCar) => String(rentCar.carId) !== String(carId)))
+  }
+
+  const updateClient = (clientId, updatedClient) => {
+    setClients((currentClients) =>
+      currentClients.map((client) => (client.id === clientId ? { ...client, ...updatedClient } : client)),
+    )
+  }
+
+  const deleteClient = (clientId) => {
+    setClients((currentClients) => currentClients.filter((client) => client.id !== clientId))
+  }
+
   const addService = (service) => {
     setServices((currentServices) => [...currentServices, { id: Date.now(), ...service }])
+  }
+
+  const updateService = (serviceId, updatedService) => {
+    setServices((currentServices) =>
+      currentServices.map((service) => (service.id === serviceId ? { ...service, ...updatedService } : service)),
+    )
+  }
+
+  const deleteService = (serviceId) => {
+    setServices((currentServices) => currentServices.filter((service) => service.id !== serviceId))
   }
 
   const addRentCar = (rentCar) => {
@@ -151,6 +205,55 @@ export const AppDataProvider = ({ children }) => {
     })
   }
 
+  const updateRentCar = (rentCarId, updatedRentCar) => {
+    const selectedCar = cars.find((car) => String(car.id) === String(updatedRentCar.carId))
+    const clientName = (updatedRentCar.clientName || updatedRentCar.client || '').trim()
+
+    if (!selectedCar || !clientName) {
+      return
+    }
+
+    setClients((currentClients) => {
+      const clientExists = currentClients.some((client) => client.name.toLowerCase() === clientName.toLowerCase())
+
+      if (clientExists) {
+        return currentClients
+      }
+
+      return [
+        ...currentClients,
+        {
+          id: Date.now(),
+          name: clientName,
+          city: updatedRentCar.city,
+          phone: updatedRentCar.phone,
+          mobile: updatedRentCar.mobile,
+        },
+      ]
+    })
+
+    setRentCars((currentRentCars) =>
+      currentRentCars.map((rentCar) =>
+        rentCar.id === rentCarId
+          ? {
+              ...rentCar,
+              carId: selectedCar.id,
+              car: selectedCar.car,
+              model: selectedCar.model,
+              client: clientName,
+              rentDate: updatedRentCar.rentDate,
+              deliveryDate: updatedRentCar.deliveryDate,
+              price: updatedRentCar.price,
+            }
+          : rentCar,
+      ),
+    )
+  }
+
+  const deleteRentCar = (rentCarId) => {
+    setRentCars((currentRentCars) => currentRentCars.filter((rentCar) => rentCar.id !== rentCarId))
+  }
+
   const toggleRentPayment = (rentCarId) => {
     setRentCars((currentRentCars) =>
       currentRentCars.map((rentCar) =>
@@ -161,7 +264,25 @@ export const AppDataProvider = ({ children }) => {
 
   return (
     <AppDataContext.Provider
-      value={{ cars, clients, services, rentCars, addCar, addClient, addService, addRentCar, toggleRentPayment }}
+      value={{
+        cars,
+        clients,
+        services,
+        rentCars,
+        addCar,
+        updateCar,
+        deleteCar,
+        addClient,
+        updateClient,
+        deleteClient,
+        addService,
+        updateService,
+        deleteService,
+        addRentCar,
+        updateRentCar,
+        deleteRentCar,
+        toggleRentPayment,
+      }}
     >
       {children}
     </AppDataContext.Provider>

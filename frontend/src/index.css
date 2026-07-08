@@ -8,12 +8,12 @@
   --color-white: #ffffff;
 
   /* Light theme */
-  --bg-primary: #cccccc;
-  --bg-secondary: #cccccc;
+  --bg-primary: #eeeeee;
+  --bg-secondary: #eeeeee;
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --btn-bg: #0f172a;
-  --btn-text: #cccccc;
+  --btn-text: #eeeeee;
   --btn-ring: #0f172a;
 
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;

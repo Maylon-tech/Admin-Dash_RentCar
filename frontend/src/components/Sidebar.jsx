@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useSidebar } from '../context/SidebarContext'
 
 import { FaBars, FaTools } from 'react-icons/fa'
-import { FaArrowCircleLeft } from 'react-icons/fa'
+import { FaArrowCircleLeft, FaArrowCircleRight } from 'react-icons/fa'
 import { FaCarSide, FaPeopleGroup } from 'react-icons/fa6'
 import { IoHome } from 'react-icons/io5'
 import { IoMdSettings } from 'react-icons/io'
@@ -71,7 +71,7 @@ const Sidebar = () => {
         className="absolute top-4 right-4 flex h-10 w-10 items-center justify-center rounded-lg transition-all duration-300 focus:outline-none focus:ring-2"
         style={{ color: 'var(--color-gold)', backgroundColor: 'transparent' }}
       >
-        {isOpen ? <FaArrowCircleLeft size={22} /> : <FaBars size={18} />}
+        {isOpen ? <FaArrowCircleLeft size={22} /> : <FaArrowCircleRight size={22} />}
       </button>
 
       <nav className="mt-14 flex flex-col gap-3">

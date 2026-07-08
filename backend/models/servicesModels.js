@@ -13,7 +13,7 @@ const serviceSchema = new mongoose.Schema(
             unique: true,
         },
         services: {
-            type: toString,
+            type: String,
             required: true,           
         },
         dateIn: {
